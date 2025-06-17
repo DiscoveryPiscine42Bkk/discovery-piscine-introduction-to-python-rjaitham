@@ -1,4 +1,4 @@
 
 word = input("Give me a word: ")
 
-print(word.upper("BANANA"))
+print(word.upper())
