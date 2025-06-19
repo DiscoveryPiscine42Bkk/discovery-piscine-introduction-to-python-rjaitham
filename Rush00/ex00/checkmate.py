@@ -1,57 +1,91 @@
 def checkmate(board):
-    # Convert the board string into a list of rows for easier manipulation
-    board = board.splitlines()
+    # Convert board into 2D grid
+    rows = board.splitlines()
+    n = len(rows)
     
-    # Find the position of the King ('K')
+    # Find the position of the King
     king_pos = None
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if board[i][j] == 'K':
+    for i in range(n):
+        for j in range(n):
+            if rows[i][j] == 'K':
                 king_pos = (i, j)
                 break
         if king_pos:
             break
     
-    # If no King is found, return an error message
     if not king_pos:
-        print("Error: King not found.")
-        return
+        return  # No King found, exit gracefully
     
-    kx, ky = king_pos
+    king_x, king_y = king_pos
     
-    # Directions for checking (vertical, horizontal, diagonal)
-    directions = [
-        (-1, 0), (1, 0),  # Vertical (up, down)
-        (0, -1), (0, 1),  # Horizontal (left, right)
-        (-1, -1), (1, 1), # Diagonal (top-left, bottom-right)
-        (-1, 1), (1, -1)  # Diagonal (top-right, bottom-left)
-    ]
+    # Directions for each piece's movement
+    directions_rook = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Vertical and horizontal
+    directions_bishop = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Diagonals
+    directions_queen = directions_rook + directions_bishop  # Queen combines both Rook and Bishop
+    directions_pawn = [(-1, -1), (-1, 1)]  # Pawn captures diagonally
     
-    # Check if any piece can attack the King
-    for dx, dy in directions:
-        x, y = kx, ky
-        while 0 <= x + dx < len(board) and 0 <= y + dy < len(board[0]):
-            x += dx
-            y += dy
-            piece = board[x][y]
-            if piece != '.':  # Found a piece
-                if piece == 'P':  # Pawn can attack diagonally
-                    if abs(dx) == 1 and abs(dy) == 1:
-                        print("Success")
-                        return
-                elif piece == 'R':  # Rook can attack vertically or horizontally
-                    if dx == 0 or dy == 0:
-                        print("Success")
-                        return
-                elif piece == 'B':  # Bishop can attack diagonally
-                    if abs(dx) == 1 and abs(dy) == 1:
-                        print("Success")
-                        return
-                elif piece == 'Q':  # Queen can attack in all directions
-                    if dx == 0 or dy == 0 or (abs(dx) == 1 and abs(dy) == 1):
-                        print("Success")
-                        return
-                break  # Stop checking further in this direction
+    def is_valid(x, y):
+        return 0 <= x < n and 0 <= y < n
+    
+    # Check if any enemy piece can attack the King
+    for i in range(n):
+        for j in range(n):
+            piece = rows[i][j]
+            if piece == '.':
+                continue  # Skip empty squares
 
-    # If no piece can attack the King, print "Fail"
+            if piece == 'P':  # Check Pawn
+                # Pawns can only attack diagonally, so we check if it can reach the King
+                for dx, dy in directions_pawn:
+                    if is_valid(i + dx, j + dy) and i + dx == king_x and j + dy == king_y:
+                        print("Success")
+                        return
+            elif piece == 'R':  # Check Rook
+                for dx, dy in directions_rook:
+                    x, y = i, j
+                    while is_valid(x + dx, y + dy):
+                        x, y = x + dx, y + dy
+                        if x == king_x and y == king_y:
+                            print("Success")
+                            return
+                        if rows[x][y] != '.':
+                            break  # Stop if we hit any other piece
+            elif piece == 'B':  # Check Bishop
+                for dx, dy in directions_bishop:
+                    x, y = i, j
+                    while is_valid(x + dx, y + dy):
+                        x, y = x + dx, y + dy
+                        if x == king_x and y == king_y:
+                            print("Success")
+                            return
+                        if rows[x][y] != '.':
+                            break  # Stop if we hit any other piece
+            elif piece == 'Q':  # Check Queen
+                for dx, dy in directions_queen:
+                    x, y = i, j
+                    while is_valid(x + dx, y + dy):
+                        x, y = x + dx, y + dy
+                        if x == king_x and y == king_y:
+                            print("Success")
+                            return
+                        if rows[x][y] != '.':
+                            break  # Stop if we hit any other piece
+    # If we didn't find any check
     print("Fail")
+    
+
+def main():
+    board = """\
+..K.....
+...R....
+........
+....Q...
+........
+........
+........
+........\
+"""
+    checkmate(board)
+
+if __name__ == "__main__":
+    main()
