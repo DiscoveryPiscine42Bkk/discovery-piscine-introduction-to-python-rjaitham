@@ -9,5 +9,5 @@ R...
 """
     checkmate(board)
 
-if name == "main":
+if __name__ == "main":
     main()
